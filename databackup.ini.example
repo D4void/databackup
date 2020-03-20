@@ -1,0 +1,51 @@
+; .databackup.ini Default settings file for databackup.sh
+; Remember to "chmod 600" it
+
+; Backup server (ssh or ftp server)
+BKPSERVER=myserver.org
+USER=myuser
+PASSWD=mypassword
+
+; Swift openrc file
+SWIFTRCFILE=/home/user/.openrc.sh
+
+; OVH swift header for Public Cloud Archive or Public Cloud Storage (optional)
+SWIFTHEADER=X-Storage-Policy: PCA
+;SWIFTHEADER=X-Storage-Policy: PCS
+
+; Privileges
+PRIV=false
+
+; Directories
+  ; directory for local backup
+LOCALBKPDIR=/mnt/backup
+  ; remote backup directory 
+RMTBKPDIR=/
+  ; local directory to use with sshfs or ftpfs
+FSMOUNTDIR=/home/user/myserverfs
+  ; BKPSERVER directory associated to the mountpoint FSMOUNTDIR
+BKPSRVDIR=/
+
+; Retention by default (number of backup to keep if option is activated)
+RETENTION=30
+
+; Mail settings 
+;(MTA to 'true' if a Mail Transfer Agent is configured on the system : exim, postfix etc. 'false' to use swaks to send mail)
+MTA=false
+MAILSERVER=
+MAILPORT=
+MAILLOGIN=
+MAILPASS=
+FROM=
+TO=
+
+; Encryption
+;CIPHER: AES128 or AES192 or AES256
+CIPHER=AES256
+BKPPASS=
+
+; FILES TO BACKUP (1 line per file)
+;FILE=/tmp/file1
+;FILE=/tmp/file2
+;FILE=
+
