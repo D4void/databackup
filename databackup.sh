@@ -119,10 +119,10 @@ __init_settings() {
 	PASSWD=$(__read_ini "PASSWD")
 
 	# Swift openrc file
-	SWIFTRCFILE=$(__read_ini "SWIFTRCFILE")
-	if [[ ! -z "$SWIFTRCFILE" ]]; then
-		if [[ ! -f "$SWIFTRCFILE" ]]; then
-			echo "Error: Swift openrc file $SWIFTRCFILE not found. Check settings."; exit 1
+	SWIFTOPENRC=$(__read_ini "SWIFTOPENRC")
+	if [[ ! -z "$SWIFTOPENRC" ]]; then
+		if [[ ! -f "$SWIFTOPENRC" ]]; then
+			echo "Error: Swift openrc file $SWIFTOPENRC not found. Check settings."; exit 1
 		fi
 	fi
 
@@ -309,8 +309,8 @@ __transfer_ftp() {
 
 __transfer_swift() {
 	SWIFT=/usr/local/bin/swift
-	if [[ ! -z "$SWIFTRCFILE" ]]; then
-		source "$SWIFTRCFILE"
+	if [[ ! -z "$SWIFTOPENRC" ]]; then
+		source "$SWIFTOPENRC"
 	else
 		__error "Error: Swift openrc file is not set. Check settings." 1
 	fi
