@@ -7,7 +7,7 @@ USER=myuser
 PASSWD=mypassword
 
 ; Swift openrc file
-SWIFTOPENRC=/home/user/.openrc.sh
+OPENRC=/home/user/.openrc.sh
 
 ; OVH swift header for Public Cloud Archive or Public Cloud Storage (optional)
 SWIFTHEADER=X-Storage-Policy: PCA

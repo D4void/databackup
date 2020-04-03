@@ -3,7 +3,6 @@
 A bash script to backup data and transfer the archive with ftp, ftpfs, sshfs or swift.
 
 databackup -- Backup files: zip it, encrypt it and upload it to Internet (ftp server, cloud...)
-
               Local copy is possible.
 
 **USAGE**: databackup [-e] [-h] [-i] [-l] [-m] [-mf] [-mode ftp,ftpfs,swift] [-r <n>] <backup name> [<files>]
