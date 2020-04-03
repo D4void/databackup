@@ -20,17 +20,16 @@ databackup  Backup files: zip it, encrypt it and upload it to Internet (ftp serv
 
 	-m send backup log by email - check mail section in .ini file
 
-        -mf send backup log by email only on failure
+	-mf send backup log by email only on failure
 
 	-mode ftp (default): upload to ftp server (integrity check and backup files rotation is not possible)
 
-	            ftpfs : upload to ftp server by mounting it with fuse
+		ftpfs : upload to ftp server by mounting it with fuse
+		sshfs : upload to ssh server by mounting it with fuse
+		swift : upload to openstack object storage
 
-                    sshfs : upload to ssh server by mounting it with fuse
-
-	            swift : upload to openstack object storage
-
-        -r <n> activate backup files rotation and keep only <n> backup. If <n> is not set, use default value set in .ini file.
+	-r <n> activate backup files rotation and keep only <n> backup. 
+	   If <n> is not set, use default value set in .ini file.
 
 **INI FILE:**
 
@@ -44,7 +43,7 @@ databackup  Backup files: zip it, encrypt it and upload it to Internet (ftp serv
 
 **Example**:
 
-`databackup.sh -e -i -l -mode swift MyFileBackup /home/user/MyFile`
+`databackup.sh -e -i -r -l -mode swift MyFileBackup /home/user/MyFile`
 
 
 
