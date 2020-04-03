@@ -41,16 +41,20 @@
 # 16/06/17 - v1.5 - Adding sshfs option
 # 20/01/02 - v1.6 - Modifying gpg with --batch option
 # 20/03/12 - v1.7 - Remove hubicfuse option. Add openstack swift support. Code review.
+# 20/04/20 - v1.8 - Issue with mail settings. Add mail option -mf: mail on failure only
 ########################################################################################################################
 
 
-ver="1.7"
+ver="1.8"
 
 BANNERINIT="=======================- DATABACKUP LOG -========================="
 BANNEREND="==================- END of DATABACKUP LOG -======================="
 
 DEFAULTINI=".databackup.ini"
 NBMOUNTRETRY=3
+
+SWIFT=/usr/local/bin/swift
+SWAKS=/usr/bin/swaks
 
 ############################################################
 # FUNCTIONS
@@ -64,7 +68,7 @@ __help()
 databackup -- Backup files: zip it, encrypt it and upload it to Internet (ftp server, cloud...)
               Local copy is possible.
 
-USAGE: databackup [-e] [-h] [-i] [-l] [-m] [-mode ftp,ftpfs,swift] [-r <n>] <backup name> [<files>]
+USAGE: databackup [-e] [-h] [-i] [-l] [-m] [-mf] [-mode ftp,ftpfs,swift] [-r <n>] <backup name> [<files>]
 
 OPTIONS:
 	-e encrypt backup file - check CIPHER and BKPPASS settings in .ini file
@@ -72,6 +76,7 @@ OPTIONS:
 	-i check file integrity (md5sum)
 	-l keep a local copy of the backup file - check LOCALBKPDIR settings in .ini file
 	-m send backup log by email - check mail section in .ini file
+        -mf send backup log by email only on failure
 	-mode ftp (default): upload to ftp server (integrity check and backup files rotation is not possible)
 	      ftpfs : upload to ftp server by mounting it with fuse
               sshfs : upload to ssh server by mounting it with fuse
@@ -119,10 +124,10 @@ __init_settings() {
 	PASSWD=$(__read_ini "PASSWD")
 
 	# Swift openrc file
-	SWIFTOPENRC=$(__read_ini "SWIFTOPENRC")
-	if [[ ! -z "$SWIFTOPENRC" ]]; then
-		if [[ ! -f "$SWIFTOPENRC" ]]; then
-			echo "Error: Swift openrc file $SWIFTOPENRC not found. Check settings."; exit 1
+	OPENRC=$(__read_ini "OPENRC")
+	if [[ ! -z "$OPENRC" ]]; then
+		if [[ ! -f "$OPENRC" ]]; then
+			echo "Error: Swift openrc file $OPENRC not found. Check settings."; exit 1
 		fi
 	fi
 
@@ -308,9 +313,8 @@ __transfer_ftp() {
 }
 
 __transfer_swift() {
-	SWIFT=/usr/local/bin/swift
-	if [[ ! -z "$SWIFTOPENRC" ]]; then
-		source "$SWIFTOPENRC"
+	if [[ ! -z "$OPENRC" ]]; then
+		source "$OPENRC"
 	else
 		__error "Error: Swift openrc file is not set. Check settings." 1
 	fi
@@ -429,7 +433,7 @@ __send_mail() {
 	if $MTA; then
 		cat "$LOGFILE" | mail -s "$SUBJECT" $TO
 	else
-		swaks -S -s $MAILSERVER -p $MAILPORT --auth CRAM-MD5 --tls -a -au $MAILLOGIN -ap $MAILPASS -t $TO -f $FROM --header "Subject: $SUBJECT" --body $LOGFILE
+		$SWAKS -S --tls -s $MAILSERVER -p $MAILPORT -au $MAILLOGIN -ap $MAILPASS -t $TO -f $FROM --header "Subject: $SUBJECT" --body $LOGFILE
 		if [[ $? -ne 0 ]]; then
 			__log "Error with swaks while sending log by email."
 			exit 1
@@ -442,6 +446,9 @@ __isNum() {
 }
 
 __terminate() {
+	if $SUCCESS && ! $ALWAYSMAIL ; then
+		MAIL=false
+	fi
 	if $MAIL; then
 		if $MTA; then
 			__log "Sending an email with MTA."
@@ -469,6 +476,7 @@ MAIL=false
 ROTATE=false
 INTEGRITY=false
 SUCCESS=false
+ALWAYSMAIL=false
 
 while [ -n "$1" ]; do
 case $1 in
@@ -476,7 +484,8 @@ case $1 in
     -h) __help;shift;;
     -i) INTEGRITY=true;shift;;
     -l) LOCAL=true;shift;;
-    -m) MAIL=true;shift;;
+    -m) MAIL=true;ALWAYSMAIL=true;shift;;
+    -mf) MAIL=true;shift;;
     -mode) shift;MODE=$1;shift;;
     -r) ROTATE=true;shift;__isNum $1;if [[ $? -eq 0 ]]; then RETENTION=$1;shift;fi;;
     --) break;;
@@ -493,7 +502,6 @@ fi
 __init_settings
 
 # Filenames definition
-FDATE=$(date '+%Y_%m_%d-%Hh%M')
 FILE="$BKPNAME-$(date '+%Y_%m_%d-%Hh%M').zip"
 FILEC="$FILE.gpg"
 LOGFILE="$HOME/.$BKPNAME.log"
@@ -515,7 +523,7 @@ esac
 sleep 1
 
 __log "Deleting temp $ARCHFILE"
-rm "$ARCHFILE" 2>&1 | tee -a $LOGFILE
+rm -f "$ARCHFILE" 2>&1 | tee -a $LOGFILE
 
 __log "Backup successfull *_*"
 SUCCESS=true
