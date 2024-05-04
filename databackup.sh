@@ -53,7 +53,7 @@ BANNEREND="==================- END of DATABACKUP LOG -======================="
 DEFAULTINI=".databackup.ini"
 NBMOUNTRETRY=3
 
-SWIFT=/usr/local/bin/swift
+SWIFT=/usr/bin/swift
 SWAKS=/usr/bin/swaks
 
 ############################################################
