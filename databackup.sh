@@ -433,7 +433,7 @@ __send_mail() {
 	if $MTA; then
 		cat "$LOGFILE" | mail -s "$SUBJECT" $TO
 	else
-		$SWAKS -S --tls -s $MAILSERVER -p $MAILPORT -au $MAILLOGIN -ap $MAILPASS -t $TO -f $FROM --header "Subject: $SUBJECT" --body $LOGFILE
+		$SWAKS -S --tls -s $MAILSERVER -p $MAILPORT -au $MAILLOGIN -ap $MAILPASS -t $TO -f $FROM --header "Subject: $SUBJECT" --body @$LOGFILE
 		if [[ $? -ne 0 ]]; then
 			__log "Error with swaks while sending log by email."
 			exit 1
