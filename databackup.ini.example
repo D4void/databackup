@@ -13,6 +13,9 @@ OPENRC=/home/user/.openrc.sh
 SWIFTHEADER=X-Storage-Policy: PCA
 ;SWIFTHEADER=X-Storage-Policy: PCS
 
+; OVH swift segment size (5G max)
+SWIFT_SEGMENT_SIZE=512M
+
 ; Privileges
 PRIV=false
 
