@@ -42,10 +42,11 @@
 # 20/01/02 - v1.6 - Modifying gpg with --batch option
 # 20/03/12 - v1.7 - Remove hubicfuse option. Add openstack swift support. Code review.
 # 20/04/20 - v1.8 - Issue with mail settings. Add mail option -mf: mail on failure only
+# 25/01/018 - v1.9 - Add --segment-size to swift upload for big backup
 ########################################################################################################################
 
 
-ver="1.8"
+ver="1.9"
 
 BANNERINIT="=======================- DATABACKUP LOG -========================="
 BANNEREND="==================- END of DATABACKUP LOG -======================="
@@ -133,6 +134,9 @@ __init_settings() {
 
 	# OVH swift header for Public Cloud Archive 
 	SWIFTHEADER=$(__read_ini "SWIFTHEADER")
+	
+	# OVH swift segment size
+	SWIFT_SEGMENT_SIZE=$(__read_ini "SWIFT_SEGMENT_SIZE")
 
 	# Privilege
 	PRIV=$(__read_ini "PRIV")
@@ -338,7 +342,7 @@ __transfer_swift() {
         fi
 	
 	__log "Uploading $ARCHFILE to the openstack container $BKPNAME"
-	$SWIFT upload "$BKPNAME" "$ARCHFILE" 2>&1 | tee -a $LOGFILE
+	$SWIFT upload --segment-size "$SWIFT_SEGMENT_SIZE" "$BKPNAME" "$ARCHFILE" 2>&1 | tee -a $LOGFILE
 	if [[ $? -ne 0 ]]; then
                 __error "Error sending file to the container $BKPNAME." 1
         fi
